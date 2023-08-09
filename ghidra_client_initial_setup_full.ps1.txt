@@ -42,7 +42,7 @@ Function Get-JavaInstall {
 
 Function Install-Ghidra {
     #Download the ghidra release 10.3.2
-    curl "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.2_build/ghidra_10.3.2_PUBLIC_20230711.zip" -OutFile ".\\ghidra_10.3.2.zip"
+    curl "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.2_build/ghidra_10.3.2_PUBLIC_20230711.zip" -OutFile "C:\ghidra_10.3.2.zip"
 
 
     #Unzip the ghidra file
@@ -95,7 +95,8 @@ if (Get-JavaInstall) {
 $out = "Opening Microsoft Edge to download the below (frustratingly unable to find direct links to cut this interaction out):"
 $urls = '--new-window '
 if (!(Test-Path $Gradle)) {
-    if (!(Test-Path 'C:\Users\omnilab\Downloads\gradle-7.3.3-all.zip')) {
+    $test = $env:USERPROFILE\Downloads\gradle-7.3.3-all.zip
+    if (!(Test-Path $test)) {
         $out = $out + "`nDownload Gradle 7.3.3"
         $urls = ' https://gradle.org/releases/'
     }
@@ -103,13 +104,15 @@ if (!(Test-Path $Gradle)) {
     Test-GradlePath
 }
 if (!(Test-Path $Eclipse)) {
-    if (!(Test-Path 'C:\Users\omnilab\Downloads\eclipse-committers-2023-06-R-win32-x86_64.zip')) {
+    $test = $env:USERPATH\Downloads\eclipse-committers-2023-06-R-win32-x86_64.zip
+    if (!(Test-Path $test)) {
         $out = $out + "`nDownload the Eclipse IDE for Eclipse Committers then close the browser.`nScript will pause and wait for ENTER to be hit."
         $urls = $urls + ' https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2023-06/R/eclipse-committers-2023-06-R-win32-x86_64.zip'
     }
 }
 if (!(Test-Path $VSBuildTools)) {
-    if (!(Test-Path 'C:\Users\omnilab\Downloads\vs_buildtools.exe')) {
+    $test = $env:USERPATH\Downloads\vs_buildtools.exe
+    if (!(Test-Path $test)) {
         $urls = $urls + ' https://aka.ms/vs/17/release/vs_buildtools.exe'
     }
 }
@@ -127,11 +130,11 @@ if ( $url.Equals('--new-window ') -and (!(Test-Path 'C:\vs_buildtools.exe'))) {
 }
 
 
-if (!(Test-Path $Gradle) -and (Test-Path 'C:\Users\omnilab\Downloads\gradle-7.3.3-all.zip')) {
+if (!(Test-Path $Gradle) -and (Test-Path $env:USERPROFILE\Downloads\gradle-7.3.3-all.zip)) {
     Write-Host "Unzipping Gradle to C:\"
-    Expand-Archive -Path C:\Users\omnilab\Downloads\gradle-7.3.3-all.zip -DestinationPath C:\
+    Expand-Archive -Path $env:USERPROFILE\Downloads\gradle-7.3.3-all.zip -DestinationPath C:\
     Write-Host "Unzipping Eclipse to C:\"
-    Expand-Archive -Path C:\Users\omnilab\Downloads\eclipse-committers-2023-06-R-win32-x86_64.zip -DestinationPath C:\
+    Expand-Archive -Path $env:USERPROFILE\Downloads\eclipse-committers-2023-06-R-win32-x86_64.zip -DestinationPath C:\
     Test-GradlePath
 }
 
@@ -139,8 +142,7 @@ if (!(Test-Path $Gradle) -and (Test-Path 'C:\Users\omnilab\Downloads\gradle-7.3.
 if (Test-Path $VSBuildTools) {
     Write-Host "Launching Microsoft Build Tools installer."
     Write-Host "Options on the right in the dialog should already be checked: `“MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`”, `"Windows 11 SDK (10.0.22621.0)`" and `"C++ ATL for latest v143 build tools (x86 & x64)`'. Press ENTER to continue after installing."
-    C:\Users\omnilab\Downloads\vs_buildtools.exe --add Microsoft.VisualStudio.Component.Windows11SDK.22621 --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.ATL
-    #C:\Users\omnilab\Downloads\vs_BuildTools.exe
+    $env:USERPROFILE\Downloads\vs_buildtools.exe --add Microsoft.VisualStudio.Component.Windows11SDK.22621 --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.ATL
     Read-Host "Press ENTER to continue..."
 }
 
@@ -210,24 +212,24 @@ Write-Host "C:\ghidra_10.3.2_PUBLIC\Extensions\Eclipse\GhidraDev\GhidraDev-3.0.0
 
 
 cd C:\ghidra-master
-echo ""
-echo "Fetching Ghidra build dependencies..."
+Write-Host ""
+Write-Host "Fetching Ghidra build dependencies..."
 gradle -I gradle/support/fetchDependencies.gradle init
-echo ""
-echo "Testing Ghidra build..."
+Write-Host ""
+Write-Host "Testing Ghidra build..."
 gradle buildGhidra
-echo ""
-echo "Prepping Eclipse Ghidra build environment to enable plugin development..."
+Write-Host ""
+Write-Host "Prepping Eclipse Ghidra build environment to enable plugin development..."
 gradle cleanEclipse eclipse
 gradle prepdev eclipse buildNatives
 gradle eclipse -PeclipsePDE
-echo ""
-echo "Rebuilding Ghidra post-Eclipse prep..."
+Write-Host ""
+Write-Host "Rebuilding Ghidra post-Eclipse prep..."
 gradle buildGhidra
 
 
 #Download and install x64Dbg
 Write-Host "Downloading and installing x64Debug. Step through the process."
-curl "https://github.com/x64dbg/x64dbg/releases/download/snapshot/snapshot_2023-08-01_14-50.zip" -Outfile C:\Users\omnilab\Downloads\x64Dbg.zip
+curl "https://github.com/x64dbg/x64dbg/releases/download/snapshot/snapshot_2023-08-01_14-50.zip" -Outfile $env:USERPROFILE\Downloads\x64Dbg.zip
 Expand-Archive -Path x64Dbg.zip -DestinationPath C:\x64Dbg
-C:\Users\omnilab\x64Dbg\release\x96dbg.exe
+C:\x64Dbg\release\x96dbg.exe
